@@ -2,7 +2,7 @@
 on:
   workflow_dispatch:
 
-name: Deploy batch-service to Amazon ECS
+name: Fetching keys from secrets
 
 jobs:
   deploy:
