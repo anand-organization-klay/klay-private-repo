@@ -1,0 +1,31 @@
+
+on:
+  workflow_dispatch:
+
+name: Deploy batch-service to Amazon ECS
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: "ASIA2NK3YJVZQ4LREOXD"
+          aws-secret-access-key: "/0FNaDSNhho1nbj5ZtYK2mWlkZZWMShM97Fe5Hgh"
+          aws-region: "us-east-1"
+
+      - name: Fetch Secrets from AWS Secrets Manager
+        id: fetch-secrets
+        run: |
+          SECRET_NAME="your-secret-name"
+          SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME --query SecretString --output text)
+          echo "SECRET_JSON=$SECRET_JSON" >> $GITHUB_ENV
+
+      - name: Count number of keys in the secret
+        run: |
+          KEY_COUNT=$(echo '${{ env.SECRET_JSON }}' | jq 'keys | length')
+          echo "Total keys in the secret: $KEY_COUNT"
