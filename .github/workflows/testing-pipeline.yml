@@ -1,33 +1,35 @@
-
 on:
   workflow_dispatch:
 
-name: Fetching keys from secrets
+name: Fetch All Secrets from AWS Secrets Manager
+
 permissions:
   id-token: write
-  contents: read 
+  contents: read  
 
 jobs:
-  deploy:
-    name: Deploy
+  fetch-secrets:
+    name: Fetch Secrets
     runs-on: ubuntu-latest
-
 
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::214580919421:role/GitHubOIDCRole
-          aws-region: "us-east-1"
+          aws-region: us-east-1
 
-      - name: Fetch Secrets from AWS Secrets Manager
-        id: fetch-secrets
+      - name: Fetch All Secrets from AWS Secrets Manager
+        id: list-secrets
         run: |
-          SECRET_NAME="your-secret-name"
-          SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME --query SecretString --output text)
-          echo "SECRET_JSON=$SECRET_JSON" >> $GITHUB_ENV
-
-      - name: Count number of keys in the secret
+          echo "Fetching all secrets..."
+          SECRET_LIST=$(aws secretsmanager list-secrets --query 'SecretList[*].Name' --output json | jq -c)
+          echo "SECRET_LIST=$SECRET_LIST" >> $GITHUB_ENV
+      - name: Fetch and Print Secret Values
         run: |
-          KEY_COUNT=$(echo '${{ env.SECRET_JSON }}' | jq 'keys | length')
-          echo "Total keys in the secret: $KEY_COUNT"
+          echo "Fetching secret values..."
+          for SECRET in $(echo "$SECRET_LIST" | jq -r '.[]'); do
+            SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id "$SECRET" --query SecretString --output text)
+            echo "Secret Name: $SECRET"
+            echo "Secret Value: $SECRET_VALUE"
+          done
