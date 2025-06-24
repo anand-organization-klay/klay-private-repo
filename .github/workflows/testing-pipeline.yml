@@ -18,7 +18,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::214580919421:role/GitHubOIDCRole
           aws-region: us-east-1
-          role-duration-seconds: 180
 
       - name: Export temporary credentials to ENV file
         uses: SpicyPizza/create-envfile@v2.0
@@ -27,6 +26,9 @@ jobs:
           envkey_AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
           envkey_AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
           envkey_AWS_REGION: us-east-1
+          file_name: envfile
+      - name: Print exported AWS credentials (.env)
+        run: cat .env
       - name: Fetch All Secrets from AWS Secrets Manager
         id: list-secrets
         run: |
