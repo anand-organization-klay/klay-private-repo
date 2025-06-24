@@ -19,15 +19,17 @@ jobs:
           role-to-assume: arn:aws:iam::214580919421:role/GitHubOIDCRole
           aws-region: us-east-1
 
-      - name: Export temporary credentials to ENV file
+      - name: Export AWS credentials to environment variables
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=${{ steps.configure-aws-credentials.outputs.aws-session-token }}" >> $GITHUB_ENV
+          echo "AWS_REGION=us-east-1" >> $GITHUB_ENV
+
+      - name: Export temporary credentials to .env
         uses: SpicyPizza/create-envfile@v2.0
         with:
-          filename: .env
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
-          AWS_REGION: us-east-1
+          file_name: .env
           
       - name: Print AWS credentials
         run: |
@@ -35,12 +37,14 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
           echo "AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN"
           echo "AWS_REGION=$AWS_REGION"
+          
       - name: Fetch All Secrets from AWS Secrets Manager
         id: list-secrets
         run: |
           echo "Fetching all secrets..."
           SECRET_LIST=$(aws secretsmanager list-secrets --query 'SecretList[*].Name' --output json | jq -c)
           echo "SECRET_LIST=$SECRET_LIST" >> $GITHUB_ENV
+          
       - name: Fetch and Print Secret Values
         run: |
           echo "Fetching secret values..."
