@@ -29,6 +29,11 @@ jobs:
           AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
           AWS_REGION: us-east-1
 
+      - name: Print .env file content
+        run: |
+          echo "print .env content"
+          cat .env
+
       - name: get caller identity
         run: |
           aws sts get-caller-identity
