@@ -22,11 +22,13 @@ jobs:
       - name: Export temporary credentials to ENV file
         uses: SpicyPizza/create-envfile@v2.0
         with:
-          envkey_AWS_ACCESS_KEY_ID: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
-          envkey_AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
-          envkey_AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
-          envkey_AWS_REGION: us-east-1
-          file_name: envfile
+          filename: .env
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
+          AWS_REGION: us-east-1
+          
       - name: Print exported AWS credentials (.env)
         run: cat .env
       - name: Fetch All Secrets from AWS Secrets Manager
