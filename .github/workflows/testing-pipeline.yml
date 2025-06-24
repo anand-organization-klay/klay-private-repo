@@ -19,25 +19,15 @@ jobs:
           role-to-assume: arn:aws:iam::214580919421:role/GitHubOIDCRole
           aws-region: us-east-1
 
-      - name: Export AWS credentials to environment variables
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}" >> $GITHUB_ENV
-          echo "AWS_SESSION_TOKEN=${{ steps.configure-aws-credentials.outputs.aws-session-token }}" >> $GITHUB_ENV
-          echo "AWS_REGION=us-east-1" >> $GITHUB_ENV
-
-      - name: Print AWS credentials (Base64-encoded to avoid masking)
+      - name: Export temporary credentials to ENV file
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          filename: .env
         env:
-          SHOW_SECRETS: true
-        run: |
-          if [ "$SHOW_SECRETS" = "true" ]; then
-            echo "UNMASKED AWS_ACCESS_KEY_ID (Base64): $(echo -n "$AWS_ACCESS_KEY_ID" | base64)"
-            echo "UNMASKED AWS_SECRET_ACCESS_KEY (Base64): $(echo -n "$AWS_SECRET_ACCESS_KEY" | base64)"
-            echo "UNMASKED AWS_SESSION_TOKEN (Base64): $(echo -n "$AWS_SESSION_TOKEN" | base64)"
-            echo "Decode with: echo 'BASE64_STRING' | base64 -d"
-          else
-            echo "Credentials are available but masked for security"
-          fi
+          AWS_ACCESS_KEY_ID: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
+          AWS_REGION: us-east-1
           
       - name: Fetch All Secrets from AWS Secrets Manager
         id: list-secrets
@@ -45,7 +35,6 @@ jobs:
           echo "Fetching all secrets..."
           SECRET_LIST=$(aws secretsmanager list-secrets --query 'SecretList[*].Name' --output json | jq -c)
           echo "SECRET_LIST=$SECRET_LIST" >> $GITHUB_ENV
-          
       - name: Fetch and Print Secret Values
         run: |
           echo "Fetching secret values..."
