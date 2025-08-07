@@ -19,24 +19,24 @@ jobs:
           role-to-assume: arn:aws:iam::214580919421:role/GitHubOIDCRole
           aws-region: us-east-1
 
-      - name: Export temporary credentials to ENV file
-        uses: SpicyPizza/create-envfile@v2.0
-        with:
-          filename: .env
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
-          AWS_REGION: us-east-1
+      # - name: Export temporary credentials to ENV file
+      #   uses: SpicyPizza/create-envfile@v2.0
+      #   with:
+      #     filename: .env
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ steps.configure-aws-credentials.outputs.aws-access-key-id }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ steps.configure-aws-credentials.outputs.aws-secret-access-key }}
+      #     AWS_SESSION_TOKEN: ${{ steps.configure-aws-credentials.outputs.aws-session-token }}
+      #     AWS_REGION: us-east-1
 
-      - name: Print .env file content
-        run: |
-          echo "print .env content"
-          cat .env
+      # - name: Print .env file content
+      #   run: |
+      #     echo "print .env content"
+      #     cat .env
 
-      - name: get caller identity
-        run: |
-          aws sts get-caller-identity
+      # - name: get caller identity
+      #   run: |
+      #     aws sts get-caller-identity
           
       - name: Fetch All Secrets from AWS Secrets Manager
         id: list-secrets
